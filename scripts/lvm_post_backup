@@ -1,7 +1,24 @@
 #!/bin/bash
+if [ -f /etc/default/backuppc-helper ]
+then
+	. /etc/default/backuppc-helper
+	if [ -z "$VOL" ]
+	then
+		echo "#### WARNING ####"
+		echo "VOL in /etc/default/backuppc-helper not set!"
+		echo "#################"
+		exit 0
+	fi
+else
+	echo "#### WARNING ####"
+	echo "/etc/default/backuppc-helper is missing!"
+	echo "#################"
+	exit 0
+fi
+
 if [ `ps aux| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
 	umount /mnt/${1}
-	lvremove -f /dev/xen-vol1/${1}-snap >/dev/null 2>&1
+	lvremove -f /dev/${VOL}/${1}-snap >/dev/null 2>&1
 	if [ ${1} ]; then
 		rmdir /mnt/${1}
 	fi

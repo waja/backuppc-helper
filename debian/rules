@@ -18,6 +18,8 @@ install: build
 	dh_installdirs
 
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/backuppc-helper
+	install -d -m 0755 debian/backuppc-helper/etc/default/
+	install -D -m 644 debian/backuppc-helper.default debian/backuppc-helper/etc/default/backuppc-helper
 
 # Build architecture-independent files here.
 binary-indep: build install
