@@ -1,0 +1,49 @@
+#!/usr/bin/make -f
+# written by Jan Wagner <waja@cyconet.org>
+#
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+build:
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/backuppc-helper
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_install
+	dh_link -pbackuppc-helper			\
+	usr/share/backuppc-helper/lvm_pre_backup	\
+	usr/sbin/lvm_pre_backup
+	dh_link -pbackuppc-helper			\
+	usr/share/backuppc-helper/lvm_post_backup	\
+	usr/sbin/lvm_post_backup
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_installdebconf
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+# Build architecture-dependent files here.
+binary-arch: build install
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install

@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ `ps aux| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
+	umount /mnt/${1}
+	lvremove -f /dev/xen-vol1/${1}-snap >/dev/null 2>&1
+	if [ ${1} ]; then
+		rmdir /mnt/${1}
+	fi
+fi
