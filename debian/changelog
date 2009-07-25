@@ -1,3 +1,10 @@
+backuppc-helper (0.0.2) etch-restricted; urgency=low
+
+  * make size of snapshot volume configurable
+  * Bump Standards-Version to 3.8.2, no changes needed
+
+ -- Jan Wagner <waja@cyconet.org>  Thu, 10 Jul 2008 13:15:47 +0200
+
 backuppc-helper (0.0.1) etch-restricted; urgency=low
 
   * Initial release

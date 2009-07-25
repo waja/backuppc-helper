@@ -20,7 +20,11 @@ if  [ `ps aux| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
 	if [ `mount | grep ${1} | wc -l` -gt "0" ] ; then
 		lvm_post_backup ${1}
 	fi
-	lvcreate -L10G -s -n ${1}-snap /dev/${VOL}/${1}-disk >/dev/null 2>&1
+	if [ -z "$VSIZE" ]
+	then
+		VSIZE="1G"
+	fi
+	lvcreate -L$VSIZE -s -n ${1}-snap /dev/${VOL}/${1}-disk >/dev/null 2>&1
 	mkdir /mnt/${1}
 	mount /dev/${VOL}/${1}-snap /mnt/${1}
 else
