@@ -1,4 +1,4 @@
-backuppc-helper (0.0.2) etch-restricted; urgency=low
+backuppc-helper (0.0.2) lenny-restricted; urgency=low
 
   * make size of snapshot volume configurable
   * Bump Standards-Version to 3.8.2, no changes needed
