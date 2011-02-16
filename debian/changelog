@@ -1,3 +1,10 @@
+backuppc-helper (0.0.3) restricted; urgency=low
+
+  * Use /bin/sh as shell in scripts
+  * Bump Standards-Version to 3.9.1 and updated packaging
+
+ -- Jan Wagner <waja@cyconet.org>  Wed, 16 Feb 2011 14:51:55 +0100
+
 backuppc-helper (0.0.2) lenny-restricted; urgency=low
 
   * make size of snapshot volume configurable

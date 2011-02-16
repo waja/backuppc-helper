@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 if [ -f /etc/default/backuppc-helper ]
 then
 	. /etc/default/backuppc-helper
