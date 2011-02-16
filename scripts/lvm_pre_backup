@@ -1,11 +1,32 @@
-#!/bin/bash
-if ! [ `ps aux| grep ${1} | grep rsync` ] ; then
-	if [ `mount | grep ${1}` -gt "0" ] ; then
+#!/bin/sh
+if [ -f /etc/default/backuppc-helper ]
+then
+	. /etc/default/backuppc-helper
+	if [ -z "$VOL" ]
+	then
+		echo "#### WARNING ####"
+		echo "VOL in /etc/default/backuppc-helper not set!"
+		echo "#################"
+		exit 0
+	fi
+else
+	echo "#### WARNING ####"
+	echo "/etc/default/backuppc-helper is missing!"
+	echo "#################"
+	exit 0
+fi
+
+if  [ `ps aux| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
+	if [ `mount | grep ${1} | wc -l` -gt "0" ] ; then
 		lvm_post_backup ${1}
 	fi
-	lvcreate -L10G -s -n ${1}-snap /dev/xen-vol1/${1}-disk >/dev/null 2>&1
+	if [ -z "$VSIZE" ]
+	then
+		VSIZE="1G"
+	fi
+	lvcreate -L$VSIZE -s -n ${1}-snap /dev/${VOL}/${1}-disk >/dev/null 2>&1
 	mkdir /mnt/${1}
-	mount /dev/xen-vol1/${1}-snap /mnt/${1}
+	mount /dev/${VOL}/${1}-snap /mnt/${1}
 else
 	exit 1
 fi
