@@ -1,3 +1,9 @@
+backuppc-helper (0.0.4) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Jan Wagner <waja@cyconet.org>  Wed, 16 Feb 2011 14:58:09 +0100
+
 backuppc-helper (0.0.3) restricted; urgency=low
 
   * Use /bin/sh as shell in scripts
