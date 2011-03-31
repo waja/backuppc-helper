@@ -1,8 +1,13 @@
-backuppc-helper (0.0.4) UNRELEASED; urgency=low
+backuppc-helper (0.0.4) restricted; urgency=low
 
-  * NOT RELEASED YET
+  * Merge all functions into lvm_backup script
+    - Add lvm-backup
+    - Drop lvm_pre_backup and lvm_post_backup
+    - create symlinks from lvm_pre_backup and lvm_post_backup to lvm-backup
+  * Add a way to use a lvm device with partition table and mount the first
+    partition with 'kvm' as second parameter
 
- -- Jan Wagner <waja@cyconet.org>  Wed, 16 Feb 2011 14:58:09 +0100
+ -- Jan Wagner <waja@cyconet.org>  Thu, 31 Mar 2011 13:37:43 +0200
 
 backuppc-helper (0.0.3) restricted; urgency=low
 

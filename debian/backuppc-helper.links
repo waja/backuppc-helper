@@ -1,0 +1,4 @@
+usr/share/backuppc-helper/lvm_backup usr/share/backuppc-helper/lvm_pre_backup
+usr/share/backuppc-helper/lvm_backup usr/share/backuppc-helper/lvm_post_backup
+usr/share/backuppc-helper/lvm_backup usr/sbin/lvm_pre_backup
+usr/share/backuppc-helper/lvm_backup usr/sbin/lvm_post_backup

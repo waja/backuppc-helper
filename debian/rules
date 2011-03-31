@@ -28,12 +28,12 @@ binary-indep: build install
 	dh_installchangelogs
 	dh_installdocs
 	dh_install
-	dh_link -pbackuppc-helper			\
-	usr/share/backuppc-helper/lvm_pre_backup	\
-	usr/sbin/lvm_pre_backup
-	dh_link -pbackuppc-helper			\
-	usr/share/backuppc-helper/lvm_post_backup	\
-	usr/sbin/lvm_post_backup
+#	dh_link -pbackuppc-helper			\
+#	usr/share/backuppc-helper/lvm_pre_backup	\
+#	usr/sbin/lvm_pre_backup
+#	dh_link -pbackuppc-helper			\
+#	usr/share/backuppc-helper/lvm_post_backup	\
+#	usr/sbin/lvm_post_backup
 	dh_link
 	dh_strip
 	dh_compress
