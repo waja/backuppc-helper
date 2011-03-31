@@ -1,3 +1,9 @@
+backuppc-helper (0.0.5) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Jan Wagner <waja@cyconet.org>  Thu, 31 Mar 2011 13:42:07 +0200
+
 backuppc-helper (0.0.4) restricted; urgency=low
 
   * Merge all functions into lvm_backup script
