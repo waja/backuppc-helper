@@ -33,7 +33,7 @@ case "${DISKTYPE}" in
                 ;;
 esac
 
-function pre_backup() {
+pre_backup () {
 	if  [ `ps aux| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
 		if [ `mount | grep ${1} | wc -l` -gt "0" ] ; then
 			lvm_post_backup ${1}
@@ -60,13 +60,13 @@ function pre_backup() {
 	fi
 }
 
-function post_backup() {
+post_backup () {
 	if [ `ps aux| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
 		umount ${MOUNTPOINT}/${1}
 		if [ "${DISKTYPE}" = "kvm" ]; then
 			LOOPDEV=$(losetup -a | grep ${1} | awk -F':' {'print $1'})
 			kpartx -d ${LOOPDEV} && losetup -d ${LOOPDEV}
-		fi	
+		fi
 		lvremove -f /dev/${VOL}/${1}-snap >/dev/null 2>&1
 		if [ ${1} ]; then
 			rmdir ${MOUNTPOINT}/${1}
@@ -87,4 +87,3 @@ case "${COMMAND}" in
 		exit 0
                 ;;
 esac
-
