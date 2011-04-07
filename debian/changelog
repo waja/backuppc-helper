@@ -1,3 +1,9 @@
+backuppc-helper (0.0.6) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Jan Wagner <waja@cyconet.org>  Thu, 07 Apr 2011 22:53:26 +0200
+
 backuppc-helper (0.0.5) restricted; urgency=low
 
   * Fix some syntax errors in lvm_backup
