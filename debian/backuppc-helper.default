@@ -1,0 +1,4 @@
+# specify your vgname here
+VOL="xen-vol1"
+# size of the snapshot volume
+VSIZE="1G"

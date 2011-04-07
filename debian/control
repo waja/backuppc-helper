@@ -2,12 +2,12 @@ Source: backuppc-helper
 Section: admin
 Priority: extra
 Maintainer: Jan Wagner <waja@cyconet.org>
-Build-Depends: debhelper (>= 5)
-Standards-Version: 3.8.0
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.9.1
 
 Package: backuppc-helper
 Architecture: all
-Depends: lvm2
+Depends: ${misc:Depends}, lvm2
 Suggests: backuppc
 Description: helper scripts used by backuppc
  This package contains helper script which make life easier with backuppc

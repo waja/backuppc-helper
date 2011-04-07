@@ -1,0 +1,89 @@
+#!/bin/sh
+if [ -f /etc/default/backuppc-helper ]
+then
+	. /etc/default/backuppc-helper
+	if [ -z "$VOL" ]
+	then
+		echo "#### WARNING ####"
+		echo "VOL in /etc/default/backuppc-helper not set!"
+		echo "#################"
+		exit 0
+	fi
+else
+	echo "#### WARNING ####"
+	echo "/etc/default/backuppc-helper is missing!"
+	echo "#################"
+	exit 0
+fi
+MOUNTPOINT="/mnt"
+DISKTYPE=${2}
+if [ -z "${DISKTYPE}" ]; then
+	DISKTYPE=xen
+fi
+case "${DISKTYPE}" in
+	xen)
+		BACKUPDEV="/dev/${VOL}/${1}-disk"
+		;;
+	kvm)
+		BACKUPDEV="/dev/${VOL}/${1}-kvm"
+		;;
+        *)
+                echo "unknow disc format!"
+		exit 0
+                ;;
+esac
+
+pre_backup () {
+	if  [ `ps aux| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
+		if [ `mount | grep ${1} | wc -l` -gt "0" ] ; then
+			lvm_post_backup ${1}
+		fi
+		if [ -z "$VSIZE" ]
+		then
+			VSIZE="1G"
+		fi
+		mkdir -p ${MOUNTPOINT}/${1}
+		if [ "${DISKTYPE}" = "kvm" ]; then
+			lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
+			[ $(lsmod | grep dm_mod | wc -l) -gt 0 ] || modprobe dm_mod
+			LOOPDEV=$(ls /dev/loop* | grep -v "$(losetup -a | awk -F':' '{ print $1 }' | xargs | sed -e 's# #\\|#g')"| head -1)
+			[ -z ${LOOPDEV} ] && LOOPDEV="/dev/loop0"
+			losetup ${LOOPDEV} /dev/${VOL}/${1}-snap
+			kpartx -a ${LOOPDEV}
+			mount /dev/mapper/$(basename ${LOOPDEV})p1 ${MOUNTPOINT}/${1}
+		else
+			lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
+			mount /dev/${VOL}/${1}-snap ${MOUNTPOINT}/${1}
+		fi
+	else
+		exit 1
+	fi
+}
+
+post_backup () {
+	if [ `ps aux| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
+		umount ${MOUNTPOINT}/${1}
+		if [ "${DISKTYPE}" = "kvm" ]; then
+			LOOPDEV=$(losetup -a | grep ${1} | awk -F':' {'print $1'})
+			kpartx -d ${LOOPDEV} && losetup -d ${LOOPDEV}
+		fi
+		lvremove -f /dev/${VOL}/${1}-snap >/dev/null 2>&1
+		if [ ${1} ]; then
+			rmdir ${MOUNTPOINT}/${1}
+		fi
+	fi
+}
+
+COMMAND=$(basename ${0})
+case "${COMMAND}" in
+        lvm_pre_backup)
+                pre_backup ${1}
+                ;;
+        lvm_post_backup)
+                post_backup ${1}
+                ;;
+        *)
+                echo "unknow command name!"
+		exit 0
+                ;;
+esac
