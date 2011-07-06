@@ -1,3 +1,40 @@
+backuppc-helper (0.0.6) restricted; urgency=low
+
+  * Fix detection of used lo device in case kvm partioning is used
+
+ -- Jan Wagner <waja@cyconet.org>  Wed, 06 Jul 2011 09:29:42 +0200
+
+backuppc-helper (0.0.5) restricted; urgency=low
+
+  * Fix some syntax errors in lvm_backup
+
+ -- Jan Wagner <waja@cyconet.org>  Thu, 07 Apr 2011 22:52:00 +0200
+
+backuppc-helper (0.0.4) restricted; urgency=low
+
+  * Merge all functions into lvm_backup script
+    - Add lvm-backup
+    - Drop lvm_pre_backup and lvm_post_backup
+    - create symlinks from lvm_pre_backup and lvm_post_backup to lvm-backup
+  * Add a way to use a lvm device with partition table and mount the first
+    partition with 'kvm' as second parameter
+
+ -- Jan Wagner <waja@cyconet.org>  Thu, 31 Mar 2011 13:37:43 +0200
+
+backuppc-helper (0.0.3) restricted; urgency=low
+
+  * Use /bin/sh as shell in scripts
+  * Bump Standards-Version to 3.9.1 and updated packaging
+
+ -- Jan Wagner <waja@cyconet.org>  Wed, 16 Feb 2011 14:51:55 +0100
+
+backuppc-helper (0.0.2) lenny-restricted; urgency=low
+
+  * make size of snapshot volume configurable
+  * Bump Standards-Version to 3.8.2, no changes needed
+
+ -- Jan Wagner <waja@cyconet.org>  Thu, 10 Jul 2008 13:15:47 +0200
+
 backuppc-helper (0.0.1) etch-restricted; urgency=low
 
   * Initial release
