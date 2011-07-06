@@ -64,7 +64,8 @@ post_backup () {
 	if [ `ps aux| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
 		umount ${MOUNTPOINT}/${1}
 		if [ "${DISKTYPE}" = "kvm" ]; then
-			LOOPDEV=$(losetup -a | grep ${1} | awk -F':' {'print $1'})
+			DEVSTRING=$(echo $1 | sed "s/-/--/g")
+			LOOPDEV=$(losetup -a | grep ${DEVSTRING} | awk -F':' {'print $1'})
 			kpartx -d ${LOOPDEV} && losetup -d ${LOOPDEV}
 		fi
 		lvremove -f /dev/${VOL}/${1}-snap >/dev/null 2>&1
