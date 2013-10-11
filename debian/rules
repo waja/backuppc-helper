@@ -4,14 +4,17 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-build:
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
+build-stamp:
 
 clean:
 	dh_testdir
 	dh_testroot
 	dh_clean
 
-install: build
+install: build-stamp
 	dh_testdir
 	dh_testroot
 	dh_prep
