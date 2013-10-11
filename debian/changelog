@@ -1,8 +1,9 @@
-backuppc-helper (0.0.7) UNRELEASED; urgency=low
+backuppc-helper (0.0.7) restricted; urgency=low
 
-  * NOT RELEASED YET
+  * [0066512] Bump Standards-Version to 3.9.4, no changes needed
+  * [8341ee7] Add missing recommanded build targets
 
- -- Jan Wagner <waja@cyconet.org>  Wed, 06 Jul 2011 09:32:33 +0200
+ -- Jan Wagner <waja@cyconet.org>  Fri, 11 Oct 2013 23:12:43 +0200
 
 backuppc-helper (0.0.6) restricted; urgency=low
 
