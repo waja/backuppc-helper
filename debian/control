@@ -9,5 +9,7 @@ Package: backuppc-helper
 Architecture: all
 Depends: ${misc:Depends}, lvm2
 Suggests: backuppc
-Description: helper scripts used by backuppc
- This package contains helper script which make life easier with backuppc
+Description: helper scripts used by backuppc to create LVM snapshots
+ This package contains helper script which make life easier with backuppc.
+ With this scripts you can create and destroy LVM snapshots of volumes used
+ with Xen and KVM virtualisation technology.
