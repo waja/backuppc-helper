@@ -34,7 +34,7 @@ case "${DISKTYPE}" in
 esac
 
 pre_backup () {
-	if  [ `ps aux| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
+	if  [ `ps ax| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
 		if [ `mount | grep ${1} | wc -l` -gt "0" ] ; then
 			lvm_post_backup ${1}
 		fi
@@ -65,7 +65,7 @@ pre_backup () {
 }
 
 post_backup () {
-	if [ `ps aux| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
+	if [ `ps ax| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
 		umount ${MOUNTPOINT}/${1}
 		case ${DISKTYPE} in
 			kvm)
