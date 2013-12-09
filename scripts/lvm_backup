@@ -42,9 +42,9 @@ pre_backup () {
 		then
 			VSIZE="1G"
 		fi
-		mkdir -p ${MOUNTPOINT}/${1}
 		case ${DISKTYPE} in
 			kvm)
+				mkdir -p ${MOUNTPOINT}/${1}
 				lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
 				[ $(lsmod | grep dm_mod | wc -l) -gt 0 ] || modprobe dm_mod
 				LOOPDEV=$(ls /dev/loop* | grep -v "$(losetup -a | awk -F':' '{ print $1 }' | xargs | sed -e 's# #\\|#g')"| head -1)
@@ -54,6 +54,7 @@ pre_backup () {
 				mount /dev/mapper/$(basename ${LOOPDEV})p1 ${MOUNTPOINT}/${1}
 				;;
 			*)
+				mkdir -p ${MOUNTPOINT}/${1}
 				lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
 				mount /dev/${VOL}/${1}-snap ${MOUNTPOINT}/${1}
 				;;
