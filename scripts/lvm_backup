@@ -43,18 +43,21 @@ pre_backup () {
 			VSIZE="1G"
 		fi
 		mkdir -p ${MOUNTPOINT}/${1}
-		if [ "${DISKTYPE}" = "kvm" ]; then
-			lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
-			[ $(lsmod | grep dm_mod | wc -l) -gt 0 ] || modprobe dm_mod
-			LOOPDEV=$(ls /dev/loop* | grep -v "$(losetup -a | awk -F':' '{ print $1 }' | xargs | sed -e 's# #\\|#g')"| head -1)
-			[ -z ${LOOPDEV} ] && LOOPDEV="/dev/loop0"
-			losetup ${LOOPDEV} /dev/${VOL}/${1}-snap
-			kpartx -a ${LOOPDEV}
-			mount /dev/mapper/$(basename ${LOOPDEV})p1 ${MOUNTPOINT}/${1}
-		else
-			lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
-			mount /dev/${VOL}/${1}-snap ${MOUNTPOINT}/${1}
-		fi
+		case ${DISKTYPE} in
+			kvm)
+				lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
+				[ $(lsmod | grep dm_mod | wc -l) -gt 0 ] || modprobe dm_mod
+				LOOPDEV=$(ls /dev/loop* | grep -v "$(losetup -a | awk -F':' '{ print $1 }' | xargs | sed -e 's# #\\|#g')"| head -1)
+				[ -z ${LOOPDEV} ] && LOOPDEV="/dev/loop0"
+				losetup ${LOOPDEV} /dev/${VOL}/${1}-snap
+				kpartx -a ${LOOPDEV}
+				mount /dev/mapper/$(basename ${LOOPDEV})p1 ${MOUNTPOINT}/${1}
+				;;
+			*)
+				lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
+				mount /dev/${VOL}/${1}-snap ${MOUNTPOINT}/${1}
+				;;
+		esac
 	else
 		exit 1
 	fi
@@ -63,11 +66,15 @@ pre_backup () {
 post_backup () {
 	if [ `ps aux| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
 		umount ${MOUNTPOINT}/${1}
-		if [ "${DISKTYPE}" = "kvm" ]; then
-			DEVSTRING=$(echo $1 | sed "s/-/--/g")
-			LOOPDEV=$(losetup -a | grep ${DEVSTRING} | awk -F':' {'print $1'})
-			kpartx -d ${LOOPDEV} && losetup -d ${LOOPDEV}
-		fi
+		case ${DISKTYPE} in
+			kvm)
+				DEVSTRING=$(echo $1 | sed "s/-/--/g")
+				LOOPDEV=$(losetup -a | grep ${DEVSTRING} | awk -F':' {'print $1'})
+				kpartx -d ${LOOPDEV} && losetup -d ${LOOPDEV}
+				;;
+			*)
+				;;
+		esac
 		lvremove -f /dev/${VOL}/${1}-snap >/dev/null 2>&1
 		if [ ${1} ]; then
 			rmdir ${MOUNTPOINT}/${1}
