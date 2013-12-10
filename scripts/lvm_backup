@@ -17,6 +17,7 @@ else
 fi
 MOUNTPOINT="/mnt"
 FSTAB="/etc/fstab"
+PROCMOUNTS="/proc/mounts"
 DISKTYPE=${2}
 if [ -z "${DISKTYPE}" ]; then
 	DISKTYPE=xen
@@ -96,6 +97,18 @@ post_backup () {
 			native)
 				[ "${1}" != "root" ] && exit 1
 				VOLSTRING=$(echo ${VOL} | sed "s/-/--/g") 
+				while [ $(grep ${VOLSTRING} ${PROCMOUNTS} | grep "\--snap" | grep -v "${MOUNTPOINT}/root " | head -1 | awk {'print $2'} | wc -l) -eq "1" ]; do
+					RMMOUNTPOINT=$(grep ${VOLSTRING} ${PROCMOUNTS} | grep "\--snap" | grep -v "${MOUNTPOINT}/root " | head -1 | awk {'print $2'})
+					DEV=$(grep ${RMMOUNTPOINT} ${PROCMOUNTS} | awk {'print $1'})
+					umount ${RMMOUNTPOINT}
+					lvremove -f ${DEV} >/dev/null 2>&1
+				done
+				if [ $(grep ${VOLSTRING} ${PROCMOUNTS} | grep "\--snap" | grep "${MOUNTPOINT}/root " | head -1 | awk {'print $2'} | wc -l) -eq "1" ]; then
+					RMMOUNTPOINT=$(grep ${VOLSTRING} ${PROCMOUNTS} | grep "\--snap" | grep "${MOUNTPOINT}/root " | head -1 | awk {'print $2'})
+					DEV=$(grep ${RMMOUNTPOINT} ${PROCMOUNTS} | awk {'print $1'})
+					umount ${RMMOUNTPOINT}
+					lvremove -f ${DEV} >/dev/null 2>&1
+				fi
 				;;
 			*)
 				;;
