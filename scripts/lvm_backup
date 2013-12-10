@@ -16,6 +16,7 @@ else
 	exit 0
 fi
 MOUNTPOINT="/mnt"
+FSTAB="/etc/fstab"
 DISKTYPE=${2}
 if [ -z "${DISKTYPE}" ]; then
 	DISKTYPE=xen
@@ -26,6 +27,9 @@ case "${DISKTYPE}" in
 		;;
 	kvm)
 		BACKUPDEV="/dev/${VOL}/${1}-kvm"
+		;;
+	native)
+		BACKUPDEV="/dev/${VOL}/${1}"
 		;;
         *)
                 echo "unknow disc format!"
@@ -53,6 +57,22 @@ pre_backup () {
 				kpartx -a ${LOOPDEV}
 				mount /dev/mapper/$(basename ${LOOPDEV})p1 ${MOUNTPOINT}/${1}
 				;;
+			native)
+				# check if $1 is set to 'root'
+				[ "${1}" != "root" ] && exit 1
+				VOLSTRING=$(echo ${VOL} | sed "s/-/--/g")
+				mkdir -p ${MOUNTPOINT}/${1}
+				lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
+				mount /dev/${VOL}/${1}-snap ${MOUNTPOINT}/${1}
+				# get all needed lv and mounts
+				LVDEVS=$(grep ${VOLSTRING} ${MOUNTPOINT}/${1}/${FSTAB} | grep -vE "${VOLSTRING}-(root|swap|tmp)" | awk {'print $1'})
+				# iterate over the lv and mounts
+				for DEV in ${LVDEVS}; do
+					ADDMOUNTPOINT=$(grep ${DEV} ${MOUNTPOINT}/${1}/${FSTAB} | awk {'print $2'})
+					lvcreate -L$VSIZE -s -n ${ADDMOUNTPOINT}-snap ${DEV} >/dev/null 2>&1
+					mount /dev/${VOL}/${ADDMOUNTPOINT}-snap ${MOUNTPOINT}/${1}/${ADDMOUNTPOINT}
+				done
+				;;
 			*)
 				mkdir -p ${MOUNTPOINT}/${1}
 				lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
@@ -72,6 +92,10 @@ post_backup () {
 				DEVSTRING=$(echo $1 | sed "s/-/--/g")
 				LOOPDEV=$(losetup -a | grep ${DEVSTRING} | awk -F':' {'print $1'})
 				kpartx -d ${LOOPDEV} && losetup -d ${LOOPDEV}
+				;;
+			native)
+				[ "${1}" != "root" ] && exit 1
+				VOLSTRING=$(echo ${VOL} | sed "s/-/--/g") 
 				;;
 			*)
 				;;
