@@ -47,7 +47,7 @@ check_fs() {
 
 pre_backup () {
 	if  [ `ps ax| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
-		if [ `mount | grep ${1} | wc -l` -gt "0" ] ; then
+		if [ `mount | grep ${1}--snap | wc -l` -gt "0" ] ; then
 			lvm_post_backup ${1}
 		fi
 		if [ -z "$VSIZE" ]
