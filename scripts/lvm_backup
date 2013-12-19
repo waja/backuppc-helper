@@ -39,6 +39,12 @@ case "${DISKTYPE}" in
                 ;;
 esac
 
+check_fs() {
+	if [ `fsck -N $1 | grep fsck.xfs | wc -l` -gt "0" ] ; then
+		echo "-o nouuid"
+	fi
+}
+
 pre_backup () {
 	if  [ `ps ax| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
 		if [ `mount | grep ${1} | wc -l` -gt "0" ] ; then
@@ -57,7 +63,9 @@ pre_backup () {
 				[ -z ${LOOPDEV} ] && LOOPDEV="/dev/loop0"
 				losetup ${LOOPDEV} /dev/${VOL}/${1}-snap
 				kpartx -a ${LOOPDEV}
-				${MOUNT} /dev/mapper/$(basename ${LOOPDEV})p1 ${MOUNTPOINT}/${1}
+				LODEV=$(basename ${LOOPDEV})
+				MOUNT=${MOUNT}" $(check_fs /dev/mapper/${LODEVp1)"
+				${MOUNT} /dev/mapper/${LODEV}p1 ${MOUNTPOINT}/${1}
 				;;
 			native)
 				# check if $1 is set to 'root'
@@ -65,6 +73,7 @@ pre_backup () {
 				VOLSTRING=$(echo ${VOL} | sed "s/-/--/g")
 				mkdir -p ${MOUNTPOINT}/${1}
 				lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
+				MOUNT=${MOUNT}" $(check_fs /dev/${VOL}/${1}-snap)"
 				${MOUNT} /dev/${VOL}/${1}-snap ${MOUNTPOINT}/${1}
 				# get all needed lv and mounts
 				LVDEVS=$(grep ${VOLSTRING} ${MOUNTPOINT}/${1}/${FSTAB} | grep -vE "${VOLSTRING}-(root|swap|tmp)" | awk {'print $1'})
@@ -78,6 +87,7 @@ pre_backup () {
 			*)
 				mkdir -p ${MOUNTPOINT}/${1}
 				lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
+				MOUNT=${MOUNT}" $(check_fs /dev/${VOL}/${1}-snap )"
 				${MOUNT} /dev/${VOL}/${1}-snap ${MOUNTPOINT}/${1}
 				;;
 		esac
