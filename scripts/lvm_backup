@@ -57,14 +57,15 @@ pre_backup () {
 		case ${DISKTYPE} in
 			kvm)
 				mkdir -p ${MOUNTPOINT}/${1}
-				lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
+				lvcreate -L$VSIZE -s -n ${1}--snap ${BACKUPDEV} >/dev/null 2>&1
 				[ $(lsmod | grep dm_mod | wc -l) -gt 0 ] || modprobe dm_mod
 				LOOPDEV=$(ls /dev/loop* | grep -v "$(losetup -a | awk -F':' '{ print $1 }' | xargs | sed -e 's# #\\|#g')"| head -1)
 				[ -z ${LOOPDEV} ] && LOOPDEV="/dev/loop0"
 				losetup ${LOOPDEV} /dev/${VOL}/${1}-snap
 				kpartx -a ${LOOPDEV}
 				LODEV=$(basename ${LOOPDEV})
-				MOUNT=${MOUNT}" $(check_fs /dev/mapper/${LODEVp1)"
+				FS=$('check_fs /dev/mapper/${LODEVp1')
+				MOUNT="${MOUNT} ${FS}"
 				${MOUNT} /dev/mapper/${LODEV}p1 ${MOUNTPOINT}/${1}
 				;;
 			native)
@@ -73,7 +74,8 @@ pre_backup () {
 				VOLSTRING=$(echo ${VOL} | sed "s/-/--/g")
 				mkdir -p ${MOUNTPOINT}/${1}
 				lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
-				MOUNT=${MOUNT}" $(check_fs /dev/${VOL}/${1}-snap)"
+				FS=$(check_fs /dev/${VOL}/${1}-snap)
+				MOUNT="${MOUNT} ${FS}"
 				${MOUNT} /dev/${VOL}/${1}-snap ${MOUNTPOINT}/${1}
 				# get all needed lv and mounts
 				LVDEVS=$(grep ${VOLSTRING} ${MOUNTPOINT}/${1}/${FSTAB} | grep -vE "${VOLSTRING}-(root|swap|tmp)" | awk {'print $1'})
@@ -87,7 +89,8 @@ pre_backup () {
 			*)
 				mkdir -p ${MOUNTPOINT}/${1}
 				lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
-				MOUNT=${MOUNT}" $(check_fs /dev/${VOL}/${1}-snap )"
+				FS=$(check_fs /dev/${VOL}/${1}-snap )
+				MOUNT="${MOUNT} ${FS}"
 				${MOUNT} /dev/${VOL}/${1}-snap ${MOUNTPOINT}/${1}
 				;;
 		esac
