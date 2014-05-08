@@ -4,7 +4,7 @@ backuppc-helper (0.0.8) restricted; urgency=low
   * [013f036] Updating standards version to 3.9.5, no changes needed
   * [4f4f607] Add Vcs-Headers
   * [f206c7b] Add configuration for travis-ci.org
-  * [a978120] Don't install recommanded packages when building on Travis CI
+  * [a978120] Don't install recommended packages when building on Travis CI
   * [ca2ad55] Adding README.md
   * [1d7c85f] Refactoring some parts of this
   * [4ffba32] Create the mount dir only for virtualisation
