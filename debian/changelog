@@ -1,8 +1,25 @@
-backuppc-helper (0.0.8) UNRELEASED; urgency=low
+backuppc-helper (0.0.8) restricted; urgency=low
 
-  * NOT RELEASED YET
+  * [9e29af2] Make description more verbose
+  * [013f036] Updating standards version to 3.9.5, no changes needed
+  * [4f4f607] Add Vcs-Headers
+  * [f206c7b] Add configuration for travis-ci.org
+  * [a978120] Don't install recommanded packages when building on Travis CI
+  * [ca2ad55] Adding README.md
+  * [1d7c85f] Refactoring some parts of this
+  * [4ffba32] Create the mount dir only for virtualisation
+  * [c277df8] We don't need to list users when calling ps
+  * [49e3c9e] Add initial support for bare metall (native) lvm support
+  * [d61a9f7] Add destroying bare metall lvm snapshots
+  * [af9f3a3] Get path of mount via which
+  * [a13a3e5] Add xfs support
+  * [f408880] Fixing detection if we have already a mounted snapshot
+  * [a9c2b44] Get xfs support to work and fixing mount detection
+  * [875fbc7] Get xfs support to work and fixing mount detection
+  * [b1b49c7] Reorder and comment .travis.yml
+  * [d154d97] Add lintian checks after build
 
- -- Jan Wagner <waja@cyconet.org>  Fri, 11 Oct 2013 23:22:41 +0200
+ -- Jan Wagner <waja@cyconet.org>  Thu, 08 May 2014 08:32:49 +0200
 
 backuppc-helper (0.0.7) restricted; urgency=low
 
