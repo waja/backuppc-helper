@@ -1,3 +1,15 @@
+backuppc-helper (0.1.1) restricted; urgency=medium
+
+  * [ceac77a] Add debian/source/format
+  * [7f9f32c] Fix regression using kvm style snapshots
+  * [ad7e20d] travis-ci: don't install build-deps manual
+  * [ad8a306] travis-ci: build package with dpkg-buildpackage
+  * [856aeda] travis-ci: Initial support for uploading releases to github
+  * [1d5d5ce] Merging upstream changes of github-release.sh
+  * [d6c9975] Bump Standards-Version to 3.9.6, no changes needed
+
+ -- Jan Wagner <waja@cyconet.org>  Mon, 16 Mar 2015 23:26:54 +0100
+
 backuppc-helper (0.0.8) restricted; urgency=low
 
   * [9e29af2] Make description more verbose
