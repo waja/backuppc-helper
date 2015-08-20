@@ -9,7 +9,7 @@ Vcs-Browser: http://github.com/waja/backuppc-helper
 
 Package: backuppc-helper
 Architecture: all
-Depends: ${misc:Depends}, lvm2
+Depends: lvm2, ${misc:Depends}
 Suggests: backuppc
 Description: helper scripts used by backuppc to create LVM snapshots
  This package contains helper script which make life easier with backuppc.
