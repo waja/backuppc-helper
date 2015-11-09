@@ -19,6 +19,8 @@ MOUNTPOINT="/mnt"
 MOUNT="$(which mount)"
 FSTAB="/etc/fstab"
 PROCMOUNTS="/proc/mounts"
+TMPDIR="/tmp/backuppc-helper"
+SLEEP="2"
 DISKTYPE=${2}
 if [ -z "${DISKTYPE}" ]; then
 	DISKTYPE=xen
@@ -56,13 +58,17 @@ pre_backup () {
 		fi
 		case ${DISKTYPE} in
 			kvm)
+				if ! [ -d ${TMPDIR} ] ; then mkdir -p ${TMPDIR} ; fi
 				mkdir -p ${MOUNTPOINT}/${1}
 				lvcreate -L$VSIZE -s -n ${1}-snap ${BACKUPDEV} >/dev/null 2>&1
 				[ $(lsmod | grep dm_mod | wc -l) -gt 0 ] || modprobe dm_mod
-				LOOPDEV=$(ls /dev/loop* | grep -v "$(losetup -a | awk -F':' '{ print $1 }' | xargs | sed -e 's# #\\|#g')"| head -1)
+				LOOPDEV=$(losetup -f)
 				[ -z ${LOOPDEV} ] && LOOPDEV="/dev/loop0"
 				losetup ${LOOPDEV} /dev/${VOL}/${1}-snap
+				echo "${LOOPDEV}" > ${TMPDIR}/${1}.loop
 				kpartx -a ${LOOPDEV}
+				# let mapper settle device
+				sleep ${SLEEP}
 				LODEV=$(basename ${LOOPDEV})
 				FS=$(check_fs "/dev/mapper/${LODEV}p1")
 				MOUNT="${MOUNT} ${FS}"
@@ -106,7 +112,10 @@ post_backup () {
 			kvm)
 				DEVSTRING=$(echo $1 | sed "s/-/--/g")
 				LOOPDEV=$(losetup -a | grep ${DEVSTRING} | awk -F':' {'print $1'})
+				[ -z ${LOOPDEV} ] && [ -f ${TMPDIR}/${1}.loop ] && LOOPDEV=$(grep loop ${TMPDIR}/${1}.loop | tail -1)
+				[ -z ${LOOPDEV} ] && echo "ERROR: Loopdevice could not be detected!" && exit 1
 				kpartx -d ${LOOPDEV} && losetup -d ${LOOPDEV}
+				rm -f ${TMPDIR}/${1}.loop
 				;;
 			native)
 				[ "${1}" != "root" ] && exit 1
