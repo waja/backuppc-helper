@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Jan Wagner <waja@cyconet.org>
 Build-Depends: debhelper-compat (= 12)
-Standards-Version: 4.5.1
+Standards-Version: 4.6.2
 Vcs-Git: https://github.com/waja/backuppc-helper.git
 Vcs-Browser: https://github.com/waja/backuppc-helper
 
