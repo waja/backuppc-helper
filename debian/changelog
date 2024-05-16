@@ -1,8 +1,31 @@
-backuppc-helper (0.1.2~1.gbp44022c) UNRELEASED; urgency=medium
+backuppc-helper (0.1.2) restricted; urgency=medium
 
-  * 
+  [ Jan Wagner ]
+  * [fda45fa] Updating copyright and author of debian/bin/github-release.sh
+  * [e405979] debian/control: reformating with warp-and-sort
+  * [b1a3f8c] Reformating with warp-and-sort the rest of debian/
+  * [2876b7b] travis-ci: Adding requried arguments for trusty
+  * [8042d60] travis-ci: automatically install dependencies
+  * [5656135] Write loopdevice for kvm snapshot into temp lock file
+  * [5df886a] travis-ci: Use xenial image
+  * [5a83f08] Adding Github CI
+  * [8f8d6b2] d/control: Raise compat level to 12
+  * [a50039c] d/control: Bump Standards-Version to 4.5.1, no changes needed
+  * [94d5aec] d/source/options: Adding .github to diff ignore
+  * [3c50ee3] Adding Dependabot config
+  * [9f4f682] ci: pin action versions
 
- -- Jan Wagner <waja@cyconet.org>  Mon, 16 Mar 2015 23:56:07 +0100
+  [ dependabot[bot] ]
+  * [6d8187c] Bump actions/checkout from 2 to 3
+  * [5352b9a] Updating build pipelines
+  * [26547cc] Bump actions/checkout from 3 to 4
+
+  [ Jan Wagner ]
+  * [23b36a4] Change priority extra to priority optional.
+  * [50d3cb6] Use secure URI in Vcs control headers: Vcs-Browser, Vcs-Git.
+  * [c2e5286] Update standards version to 4.6.2, no changes needed.
+
+ -- Jan Wagner <waja@cyconet.org>  Thu, 16 May 2024 12:38:39 +0000
 
 backuppc-helper (0.1.1) restricted; urgency=medium
 
