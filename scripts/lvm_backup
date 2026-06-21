@@ -121,20 +121,25 @@ pre_backup () {
 				echo "${DATASET}" > ${TMPDIR}/${1}.dataset
 				echo "${CLONE}"   > ${TMPDIR}/${1}.clone
 				LOOPDEV="/dev/zvol/${CLONE}"
-				# let mapper settle device
-				sleep ${SLEEP}
-				kpartx -av ${LOOPDEV}
-				# let mapper settle device
-				sleep ${SLEEP}
-				LODEV=$(basename ${LOOPDEV})
-				ROOTPART=$(ls /dev/mapper/${LODEV}* 2>/dev/null | head -1)
-				if [ -z "${ROOTPART}" ]; then
-					logger -t ${PROGRAM} "unable to find partition on ${DEV}"
+				for i in $(seq 1 10); do
+					[ -b "${LOOPDEV}" ] && break
+					sleep 1
+				done
+				if [ ! -b "${LOOPDEV}" ]; then
+					logger -t "${PROGRAM}" \
+						"clone device ${LOOPDEV} not found"
 					return 1
 				fi
-				FS=$(check_fs ${ROOTPART})
-				MOUNT="${MOUNT} ${FS}"
-				${MOUNT} ${ROOTPART} ${MOUNTPOINT}/${1}
+				guestmount \
+					--add "${LOOPDEV}" \
+					--inspector \
+					--ro \
+					"${MOUNTPOINT}/${1}"
+				if [ $? -ne 0 ]; then
+					logger -t "${PROGRAM}" \
+						"guestmount failed for ${VMNAME}"
+					return 1
+				fi
 				;;
 			kvm)
 				if ! [ -d ${TMPDIR} ] ; then mkdir -p ${TMPDIR} ; fi
@@ -196,9 +201,7 @@ post_backup () {
 			pve)
 				DATASET=$(cat ${TMPDIR}/${1}.dataset)
 				CLONE=$(cat ${TMPDIR}/${1}.clone)
-				LOOPDEV="/dev/zvol/${CLONE}"
-				${UMOUNT} ${MOUNTPOINT}/${1}
-				kpartx -d ${LOOPDEV}
+				guestunmount "${MOUNTPOINT}/${1}" 2>/dev/null
 				zfs destroy ${CLONE}
 				zfs destroy ${DATASET}@${1}-backuppc
 				rm -f \
