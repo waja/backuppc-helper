@@ -35,6 +35,8 @@ case "${DISKTYPE}" in
 	native)
 		BACKUPDEV="/dev/${VOL}/${1}"
 		;;
+	pve)
+		;;
         *)
                 echo "unknow disc format!"
 		exit 0
@@ -47,9 +49,29 @@ check_fs() {
 	fi
 }
 
-get_vm_disk() {
-	local VMID=$3
+get_vmid() {
+    local VMNAME="$1"
 
+    qm list | awk -v name="${VMNAME}" '
+        $2 == name { print $1; exit }
+    '
+}
+
+get_vm_disk() {
+    local VMID="$1"
+
+    qm config "${VMID}" |
+    awk '
+        /^(scsi0|virtio0|sata0):/ {
+            sub(/^[^:]*: /,"")
+            sub(/,.*/,"")
+            print
+            exit
+        }
+    '
+}
+get_vm_disk() {
+	local VMID="$1"
         VOLID=$(
                 qm config "${VMID}" |
                 awk '
@@ -79,9 +101,14 @@ pre_backup () {
 			pve)
 				if ! [ -d ${TMPDIR} ] ; then mkdir -p ${TMPDIR} ; fi
 				mkdir -p ${MOUNTPOINT}/${1}
-				ZVOL="get_vm_disk"
+				VMID=$(get_vmid "${1}")
+				if [ -z "${VMID}" ]; then
+					logger -t "${PROGRAM}" "unable to resolve VM name ${1}"
+					return 1
+				fi
+				ZVOL=$(get_vm_disk ${VMID})
 				if [ -z "${ZVOL}" ]; then
-					logger -t ${PROGRAM} "unable to determine disk for VM ${HOSTNAME}"
+					logger -t ${PROGRAM} "unable to determine disk for VM ${1}"
 					return 1
 				fi
 				DATASET=${ZVOL#/dev/zvol/}
