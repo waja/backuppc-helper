@@ -127,7 +127,7 @@ pre_backup () {
 				# let mapper settle device
 				sleep ${SLEEP}
 				LODEV=$(basename ${LOOPDEV})
-				ROOTPART=$(ls /dev/mapper/${LODEV}p* 2>/dev/null | head -1)
+				ROOTPART=$(ls /dev/mapper/${LODEV}* 2>/dev/null | head -1)
 				if [ -z "${ROOTPART}" ]; then
 					logger -t ${PROGRAM} "unable to find partition on ${DEV}"
 					return 1
