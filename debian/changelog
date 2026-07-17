@@ -1,8 +1,15 @@
-backuppc-helper (0.1.4) UNRELEASED; urgency=medium
+backuppc-helper (0.2.0) restricted; urgency=medium
 
-  * 
+  [ dependabot[bot] ]
+  * [d74a6fe] Bump dawidd6/action-debian-package from 1.4.0 to 1.6.0
 
- -- Jan Wagner <waja@cyconet.org>  Thu, 16 May 2024 15:30:39 +0200
+  [ Jan Wagner ]
+  * [66854ac] Implement PVE variant
+  * [64955f3] Adding Disktype
+  * [40b3015] Fixing ROOTPART
+  * [c497611] Using guestmount
+
+ -- Jan Wagner <waja@cyconet.org>  Fri, 17 Jul 2026 09:16:04 +0200
 
 backuppc-helper (0.1.3) restricted; urgency=medium
 
