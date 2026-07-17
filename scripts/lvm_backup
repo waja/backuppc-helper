@@ -35,6 +35,8 @@ case "${DISKTYPE}" in
 	native)
 		BACKUPDEV="/dev/${VOL}/${1}"
 		;;
+	pve)
+		;;
         *)
                 echo "unknow disc format!"
 		exit 0
@@ -47,6 +49,45 @@ check_fs() {
 	fi
 }
 
+get_vmid() {
+    local VMNAME="$1"
+
+    qm list | awk -v name="${VMNAME}" '
+        $2 == name { print $1; exit }
+    '
+}
+
+get_vm_disk() {
+    local VMID="$1"
+
+    qm config "${VMID}" |
+    awk '
+        /^(scsi0|virtio0|sata0):/ {
+            sub(/^[^:]*: /,"")
+            sub(/,.*/,"")
+            print
+            exit
+        }
+    '
+}
+get_vm_disk() {
+	local VMID="$1"
+        VOLID=$(
+                qm config "${VMID}" |
+                awk '
+                /^(scsi0|virtio0|sata0):/ {
+                        sub(/^[^:]*: /,"")
+                        sub(/,.*/,"")
+                        print
+                        exit
+                }'
+        )
+
+        [ -n "${VOLID}" ] || return 1
+
+        pvesm path "${VOLID}"
+}
+
 pre_backup () {
 	if  [ `ps ax| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
 		if [ `mount | grep ${1}--snap | wc -l` -gt "0" ] ; then
@@ -57,6 +98,49 @@ pre_backup () {
 			VSIZE="1G"
 		fi
 		case ${DISKTYPE} in
+			pve)
+				if ! [ -d ${TMPDIR} ] ; then mkdir -p ${TMPDIR} ; fi
+				mkdir -p ${MOUNTPOINT}/${1}
+				VMID=$(get_vmid "${1}")
+				if [ -z "${VMID}" ]; then
+					logger -t "${PROGRAM}" "unable to resolve VM name ${1}"
+					return 1
+				fi
+				ZVOL=$(get_vm_disk ${VMID})
+				if [ -z "${ZVOL}" ]; then
+					logger -t ${PROGRAM} "unable to determine disk for VM ${1}"
+					return 1
+				fi
+				DATASET=${ZVOL#/dev/zvol/}
+				SNAPNAME="${1}-backuppc"
+				zfs snapshot ${DATASET}@${SNAPNAME}
+				CLONE="${DATASET}-${SNAPNAME}"
+				zfs clone \
+					${DATASET}@${SNAPNAME} \
+					${CLONE}
+				echo "${DATASET}" > ${TMPDIR}/${1}.dataset
+				echo "${CLONE}"   > ${TMPDIR}/${1}.clone
+				LOOPDEV="/dev/zvol/${CLONE}"
+				for i in $(seq 1 10); do
+					[ -b "${LOOPDEV}" ] && break
+					sleep 1
+				done
+				if [ ! -b "${LOOPDEV}" ]; then
+					logger -t "${PROGRAM}" \
+						"clone device ${LOOPDEV} not found"
+					return 1
+				fi
+				guestmount \
+					--add "${LOOPDEV}" \
+					--inspector \
+					--ro \
+					"${MOUNTPOINT}/${1}"
+				if [ $? -ne 0 ]; then
+					logger -t "${PROGRAM}" \
+						"guestmount failed for ${VMNAME}"
+					return 1
+				fi
+				;;
 			kvm)
 				if ! [ -d ${TMPDIR} ] ; then mkdir -p ${TMPDIR} ; fi
 				mkdir -p ${MOUNTPOINT}/${1}
@@ -70,9 +154,14 @@ pre_backup () {
 				# let mapper settle device
 				sleep ${SLEEP}
 				LODEV=$(basename ${LOOPDEV})
-				FS=$(check_fs "/dev/mapper/${LODEV}p1")
+				ROOTPART=$(ls /dev/mapper/${LODEV}p* 2>/dev/null | head -1)
+				if [ -z "${ROOTPART}" ]; then
+					logger -t ${PROGRAM} "unable to find partition on ${DEV}"
+					return 1
+				fi
+				FS=$(check_fs ${ROOTPART})
 				MOUNT="${MOUNT} ${FS}"
-				${MOUNT} /dev/mapper/${LODEV}p1 ${MOUNTPOINT}/${1}
+				${MOUNT} ${ROOTPART} ${MOUNTPOINT}/${1}
 				;;
 			native)
 				# check if $1 is set to 'root'
@@ -109,6 +198,16 @@ post_backup () {
 	if [ `ps ax| grep ${1} | grep rsync | wc -l` -eq "0" ] ; then
 		umount ${MOUNTPOINT}/${1}
 		case ${DISKTYPE} in
+			pve)
+				DATASET=$(cat ${TMPDIR}/${1}.dataset)
+				CLONE=$(cat ${TMPDIR}/${1}.clone)
+				guestunmount "${MOUNTPOINT}/${1}" 2>/dev/null
+				zfs destroy ${CLONE}
+				zfs destroy ${DATASET}@${1}-backuppc
+				rm -f \
+					${TMPDIR}/${1}.dataset \
+					${TMPDIR}/${1}.clone
+				;;
 			kvm)
 				DEVSTRING=$(echo $1 | sed "s/-/--/g")
 				LOOPDEV=$(losetup -a | grep ${DEVSTRING} | awk -F':' {'print $1'})
